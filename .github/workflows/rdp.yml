@@ -22,11 +22,11 @@ jobs:
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-      - name: Start ngrok for RDP
+      - name: Start ngrok for RDP and capture output
         run: |
           # تشغيل ngrok tcp على المنفذ 3389
-          $ngrokProcess = Start-Process -FilePath "./ngrok.exe" -ArgumentList "tcp 3389" -PassThru -Wait
-          # طباعة مخرجات ngrok (عند تشغيله)
-          Write-Host "Ngrok started successfully!"
-          # إظهار تفاصيل الاتصال بـ ngrok
-          Write-Host $ngrokProcess.StandardOutput
+          $ngrokProcess = Start-Process -FilePath "./ngrok.exe" -ArgumentList "tcp 3389" -PassThru -Wait -RedirectStandardOutput "ngrok_output.txt"
+          # انتظر لحظة لضمان أن ngrok قد بدأ وأرسل المخرجات إلى الملف
+          Start-Sleep -Seconds 5
+          # عرض مخرجات ngrok في السجلات
+          Get-Content "ngrok_output.txt"
