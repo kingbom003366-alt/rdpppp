@@ -9,9 +9,12 @@ jobs:
       - name: Download ngrok
         run: |
           Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
-          Expand-Archive ngrok.zip
-          # إضافة الرمز المميز مباشرة (ليس موصى به للأمان)
-          ./ngrok.exe authtoken 30kRLSVcrgN8hmuO5HxJnUMeUqh_2ZqVdvuWWh6UMyjc65qVJ
+          Expand-Archive ngrok.zip -DestinationPath .  # فك الضغط في المجلد الحالي
+          
+      - name: Run ngrok authtoken
+        run: |
+          # استخدام Start-Process لتشغيل ngrok.exe
+          Start-Process -FilePath "./ngrok.exe" -ArgumentList "authtoken 30kRLSVcrgN8hmuO5HxJnUMeUqh_2ZqVdvuWWh6UMyjc65qVJ" -Wait
 
       - name: Enable RDP
         run: |
@@ -19,4 +22,5 @@ jobs:
           net localgroup administrators kamel123 /add
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-          ./ngrok.exe tcp 3389
+          # تشغيل ngrok على المنفذ 3389 (RDP)
+          Start-Process -FilePath "./ngrok.exe" -ArgumentList "tcp 3389" -Wait
